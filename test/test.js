@@ -277,7 +277,7 @@ describe('finalhandler(req, res)', function () {
         .expect(404, done)
     })
 
-    it('should includeContent-Security-Policy header', function (done) {
+    it('should include Content-Security-Policy header', function (done) {
       request(createServer())
         .get('/foo')
         .expect('Content-Security-Policy', "default-src 'none'")
@@ -303,9 +303,9 @@ describe('finalhandler(req, res)', function () {
     })
 
     it('should handle HEAD', function (done) {
-      request(createServer())
+      request(createServer(createError('boom!')))
         .head('/foo')
-        .expect(404)
+        .expect(500)
         .expect(shouldNotHaveBody())
         .end(done)
     })
@@ -458,6 +458,56 @@ describe('finalhandler(req, res)', function () {
     })
   })
 
+  describe('headers set', function () {
+    it('should persist set headers', function (done) {
+      var server = http.createServer(function (req, res) {
+        var done = finalhandler(req, res)
+        res.setHeader('Server', 'foobar')
+        done()
+      })
+
+      request(server)
+        .get('/foo')
+        .expect(404)
+        .expect('Server', 'foobar')
+        .end(done)
+    })
+
+    it('should override content-type and length', function (done) {
+      var server = http.createServer(function (req, res) {
+        var done = finalhandler(req, res)
+        res.setHeader('Content-Type', 'image/png')
+        res.setHeader('Content-Length', '50')
+        done()
+      })
+
+      request(server)
+        .get('/foo')
+        .expect(404)
+        .expect('Content-Type', 'text/html; charset=utf-8')
+        .expect('Content-Length', '142')
+        .end(done)
+    })
+
+    it('should remove other content headers', function (done) {
+      var server = http.createServer(function (req, res) {
+        var done = finalhandler(req, res)
+        res.setHeader('Content-Encoding', 'gzip')
+        res.setHeader('Content-Language', 'jp')
+        res.setHeader('Content-Range', 'bytes 0-2/10')
+        done()
+      })
+
+      request(server)
+        .get('/foo')
+        .expect(404)
+        .expect(shouldNotHaveHeader('Content-Encoding'))
+        .expect(shouldNotHaveHeader('Content-Language'))
+        .expect(shouldNotHaveHeader('Content-Range'))
+        .end(done)
+    })
+  })
+
   describe('request started', function () {
     it('should not respond', function (done) {
       var server = http.createServer(function (req, res) {
@@ -491,7 +541,22 @@ describe('finalhandler(req, res)', function () {
 
       request(server)
         .get('/foo')
-        .expect(301, '0', done)
+        .on('request', function onrequest (test) {
+          test.req.on('response', function onresponse (res) {
+            if (res.listeners('error').length > 0) {
+              // forward aborts as errors for supertest
+              res.on('aborted', function onabort () {
+                res.emit('error', new Error('aborted'))
+              })
+            }
+          })
+        })
+        .end(function (err) {
+          if (err && err.message !== 'aborted') return done(err)
+          assert.strictEqual(this.res.statusCode, 301)
+          assert.strictEqual(this.res.text, '0')
+          done()
+        })
     })
   })
 
