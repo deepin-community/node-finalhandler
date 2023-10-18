@@ -1,5 +1,7 @@
 ---
 Archive: GitHub
 Bug-Database: https://github.com/pillarjs/finalhandler/issues
+Bug-Submit: https://github.com/pillarjs/finalhandler/issues/new
 Repository: https://github.com/pillarjs/finalhandler.git
 Repository-Browse: https://github.com/pillarjs/finalhandler
+Security-Contact: https://github.com/pillarjs/finalhandler/tree/HEAD/SECURITY.md
