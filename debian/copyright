@@ -2,6 +2,7 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: finalhandler
 Upstream-Contact: https://github.com/pillarjs/finalhandler/issues
 Source: https://github.com/pillarjs/finalhandler
+ https://registry.npmjs.org/@types/finalhandler
 
 Files: *
 Copyright: 2014-2018 Douglas Christopher Wilson <doug@somethingdoug.com>
@@ -10,6 +11,10 @@ License: Expat
 Files: debian/*
 Copyright: 2014 Leo Iannacone <l3on@ubuntu.com>
  2018 Bastien Roucariès <rouca@debian.org>
+License: Expat
+
+Files: types-*/*
+Copyright: Microsoft Corporation
 License: Expat
 
 License: Expat
@@ -32,4 +37,3 @@ License: Expat
  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-
